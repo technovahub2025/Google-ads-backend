@@ -21,23 +21,36 @@ const getAccessibleCustomerAccounts = async (connectionId) => {
     developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
   });
 
-  const customer = client.Customer({
-    customer_id: process.env.GOOGLE_ADS_CUSTOMER_ID,
-    refresh_token: connection.refreshToken,
-  });
+  // google-ads-api exposes Google's CustomerService.listAccessibleCustomers
+  // directly, so discovery does not need a preconfigured customer ID.
+  const accessibleCustomers = await client.listAccessibleCustomers(
+    connection.refreshToken,
+  );
+  const customerResourceNames = accessibleCustomers.resource_names || [];
 
-  const customers = await customer.query(`
-    SELECT
-      customer_client.id,
-      customer_client.descriptive_name,
-      customer_client.currency_code,
-      customer_client.time_zone,
-      customer_client.manager
-    FROM customer_client
-    ORDER BY customer_client.id
-  `);
+  const customerAccounts = await Promise.all(
+    customerResourceNames.map(async (resourceName) => {
+      const customerId = resourceName.split("/").pop();
+      const customer = client.Customer({
+        customer_id: customerId,
+        refresh_token: connection.refreshToken,
+      });
 
-  return customers;
+      const [account] = await customer.query(`
+        SELECT
+          customer.id,
+          customer.descriptive_name,
+          customer.currency_code,
+          customer.time_zone,
+          customer.manager
+        FROM customer
+      `);
+
+      return account;
+    }),
+  );
+
+  return customerAccounts;
 };
 
 module.exports = {
