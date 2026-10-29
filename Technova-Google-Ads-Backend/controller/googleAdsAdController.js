@@ -5,7 +5,7 @@ const {
 const createAdController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adGroupId,
       headlines,
@@ -14,7 +14,7 @@ const createAdController = async (req, res) => {
     } = req.body;
 
     const result = await createAd({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adGroupId,
       headlines,

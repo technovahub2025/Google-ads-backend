@@ -5,7 +5,7 @@ const {
 const createKeywordController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adGroupId,
       keyword,
@@ -13,7 +13,7 @@ const createKeywordController = async (req, res) => {
     } = req.body;
 
     const result = await createKeyword({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adGroupId,
       keyword,

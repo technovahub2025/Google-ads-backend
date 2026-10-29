@@ -8,14 +8,14 @@ const {
 const editCampaignBudgetController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       budgetId,
       budgetAmount,
     } = req.body;
 
     const result = await editCampaignBudget({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       budgetId,
       budgetAmount,
@@ -42,13 +42,13 @@ const editCampaignBudgetController = async (req, res) => {
 const deleteCampaignBudgetController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       budgetId,
     } = req.body;
 
     const result = await deleteCampaignBudget({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       budgetId,
     });

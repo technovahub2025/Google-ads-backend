@@ -5,13 +5,13 @@ const {
 } = require("../model/GoogleAdsConnection");
 
 const createAdGroup = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   campaignId,
   name,
   status = "PAUSED",
 }) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -46,7 +46,7 @@ const createAdGroup = async ({
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     campaignId,
     name,

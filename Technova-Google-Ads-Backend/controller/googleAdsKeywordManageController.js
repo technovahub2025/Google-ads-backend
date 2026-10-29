@@ -8,7 +8,7 @@ const {
 const editKeywordController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       keywordId,
       keyword,
@@ -16,7 +16,7 @@ const editKeywordController = async (req, res) => {
     } = req.body;
 
     const result = await editKeyword({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       keywordId,
       keyword,
@@ -44,13 +44,13 @@ const editKeywordController = async (req, res) => {
 const deleteKeywordController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       keywordId,
     } = req.body;
 
     const result = await deleteKeyword({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       keywordId,
     });

@@ -1,38 +1,66 @@
+const crypto = require("crypto");
 const {
   googleOAuthClient,
   GOOGLE_ADS_SCOPE,
 } = require("../config/googleOAuth");
+const { saveGoogleAdsConnection } = require("../model/GoogleAdsConnection");
 
-const {
-  saveGoogleAdsConnection,
-} = require("../model/GoogleAdsConnection");
+const OAUTH_STATE_MAX_AGE_MS = 10 * 60 * 1000;
 
-const getGoogleAdsAuthUrl = (req, res) => {
-  const nexionUserId = req.query.userId;
+const createOAuthState = () => {
+  const payload = `${Date.now()}.${crypto.randomBytes(32).toString("hex")}`;
+  const signature = crypto
+    .createHmac("sha256", process.env.GOOGLE_CLIENT_SECRET)
+    .update(payload)
+    .digest("hex");
 
-  if (!nexionUserId) {
-    return res.status(400).json({
-      success: false,
-      message: "Nexion user ID is required",
-    });
+  return `${payload}.${signature}`;
+};
+
+const isValidOAuthState = (state) => {
+  if (typeof state !== "string") return false;
+
+  const [timestamp, nonce, signature, ...extra] = state.split(".");
+  if (!timestamp || !nonce || !signature || extra.length) return false;
+
+  const issuedAt = Number(timestamp);
+  if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > OAUTH_STATE_MAX_AGE_MS || issuedAt > Date.now()) {
+    return false;
   }
 
+  const payload = `${timestamp}.${nonce}`;
+  const expected = crypto
+    .createHmac("sha256", process.env.GOOGLE_CLIENT_SECRET)
+    .update(payload)
+    .digest("hex");
+  const providedBuffer = Buffer.from(signature, "hex");
+  const expectedBuffer = Buffer.from(expected, "hex");
+
+  return providedBuffer.length === expectedBuffer.length &&
+    crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+};
+
+const getGoogleAdsAuthUrl = (req, res) => {
   const authUrl = googleOAuthClient.generateAuthUrl({
     access_type: "offline",
     scope: [GOOGLE_ADS_SCOPE],
     prompt: "select_account consent",
-    state: nexionUserId,
+    state: createOAuthState(),
   });
 
-  res.json({
-    success: true,
-    authUrl,
-  });
+  res.json({ success: true, authUrl });
 };
 
 const googleAdsOAuthCallback = async (req, res) => {
   try {
-    const { code, state } = req.query;
+    const { code, state, error } = req.query;
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Google Ads authorization was not completed",
+      });
+    }
 
     if (!code) {
       return res.status(400).json({
@@ -41,55 +69,38 @@ const googleAdsOAuthCallback = async (req, res) => {
       });
     }
 
-    if (!state) {
+    if (!isValidOAuthState(state)) {
       return res.status(400).json({
         success: false,
-        message: "Nexion user ID is missing",
+        message: "OAuth state is invalid or expired",
       });
     }
 
     const { tokens } = await googleOAuthClient.getToken(code);
-
-    console.log("Google OAuth completed");
-    console.log(
-      "Access token received:",
-      !!tokens.access_token
-    );
-    console.log(
-      "Refresh token received:",
-      !!tokens.refresh_token
-    );
-
-    if (!tokens.refresh_token) {
+    if (!tokens?.refresh_token) {
       return res.status(400).json({
         success: false,
         message: "Refresh token was not received",
       });
     }
 
-    await saveGoogleAdsConnection({
-      nexionUserId: state,
+    const connectionId = await saveGoogleAdsConnection({
       refreshToken: tokens.refresh_token,
     });
 
-    console.log(
-      "Google Ads connection saved for user:",
-      state
-    );
-
-    res.json({
+    return res.json({
       success: true,
       message: "Google Ads authorization successful",
       connectionSaved: true,
-      nexionUserId: state,
+      connectionId,
     });
-  } catch (error) {
+  } catch (callbackError) {
     console.error(
       "Google OAuth callback error:",
-      error.response?.data || error.message
+      callbackError.response?.data || callbackError.message
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Google Ads authorization failed",
     });

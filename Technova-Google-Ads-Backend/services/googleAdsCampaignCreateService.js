@@ -5,13 +5,13 @@ const {
 } = require("../model/GoogleAdsConnection");
 
 const createCampaign = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   name,
   budgetAmount,
   status = "PAUSED",
 }) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -47,7 +47,7 @@ const createCampaign = async ({
   // Campaign creation will be added after the request structure is tested.
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     name,
     budgetAmount,

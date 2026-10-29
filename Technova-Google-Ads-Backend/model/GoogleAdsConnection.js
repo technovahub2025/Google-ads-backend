@@ -3,36 +3,46 @@ const db = require("../config/firebase");
 const GOOGLE_ADS_CONNECTIONS = "google_ads_connections";
 
 const saveGoogleAdsConnection = async (data) => {
-  const docRef = db.collection(GOOGLE_ADS_CONNECTIONS).doc(data.nexionUserId);
-
-  await docRef.set(
-    {
-      nexionUserId: data.nexionUserId,
-      refreshToken: data.refreshToken,
-      connected: true,
-      updatedAt: new Date(),
-    },
-    { merge: true }
-  );
+  const docRef = await db.collection(GOOGLE_ADS_CONNECTIONS).add({
+    refreshToken: data.refreshToken,
+    connected: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 
   return docRef.id;
 };
 
-const getGoogleAdsConnection = async (nexionUserId) => {
-  const docRef = db
+const getGoogleAdsConnection = async (connectionId) => {
+  if (!connectionId) return null;
+
+  const snapshot = await db
     .collection(GOOGLE_ADS_CONNECTIONS)
-    .doc(nexionUserId);
+    .doc(connectionId)
+    .get();
 
-  const snapshot = await docRef.get();
+  if (!snapshot.exists) return null;
 
-  if (!snapshot.exists) {
-    return null;
-  }
+  return { id: snapshot.id, ...snapshot.data() };
+};
 
-  return snapshot.data();
+const listGoogleAdsConnections = async () => {
+  const snapshot = await db.collection(GOOGLE_ADS_CONNECTIONS).get();
+
+  return snapshot.docs.map((doc) => {
+    const { connected, googleAccount, createdAt, updatedAt } = doc.data();
+    return {
+      connectionId: doc.id,
+      connected: connected === true,
+      ...(googleAccount ? { googleAccount } : {}),
+      ...(createdAt ? { createdAt } : {}),
+      ...(updatedAt ? { updatedAt } : {}),
+    };
+  });
 };
 
 module.exports = {
   saveGoogleAdsConnection,
   getGoogleAdsConnection,
+  listGoogleAdsConnections,
 };

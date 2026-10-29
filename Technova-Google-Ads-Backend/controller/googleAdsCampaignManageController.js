@@ -8,14 +8,14 @@ const {
 const editCampaignController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       campaignId,
       name,
     } = req.body;
 
     const result = await editCampaign({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       campaignId,
       name,
@@ -42,13 +42,13 @@ const editCampaignController = async (req, res) => {
 const deleteCampaignController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       campaignId,
     } = req.body;
 
     const result = await deleteCampaign({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       campaignId,
     });

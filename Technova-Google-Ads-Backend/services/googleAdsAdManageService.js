@@ -4,8 +4,8 @@ const {
   getGoogleAdsConnection,
 } = require("../model/GoogleAdsConnection");
 
-const getCustomer = async (nexionUserId, customerId) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+const getCustomer = async (connectionId, customerId) => {
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -34,7 +34,7 @@ const getCustomer = async (nexionUserId, customerId) => {
 
 // EDIT AD
 const editAd = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   adId,
   headlines,
@@ -57,11 +57,11 @@ const editAd = async ({
     throw new Error("Final URL is required");
   }
 
-  await getCustomer(nexionUserId, customerId);
+  await getCustomer(connectionId, customerId);
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     adId,
     headlines,
@@ -74,7 +74,7 @@ const editAd = async ({
 
 // DELETE AD
 const deleteAd = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   adId,
 }) => {
@@ -82,11 +82,11 @@ const deleteAd = async ({
     throw new Error("Ad ID is required");
   }
 
-  await getCustomer(nexionUserId, customerId);
+  await getCustomer(connectionId, customerId);
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     adId,
     message: "Ad delete request validated",

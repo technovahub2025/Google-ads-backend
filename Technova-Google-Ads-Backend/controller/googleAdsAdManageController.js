@@ -8,7 +8,7 @@ const {
 const editAdController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adId,
       headlines,
@@ -17,7 +17,7 @@ const editAdController = async (req, res) => {
     } = req.body;
 
     const result = await editAd({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adId,
       headlines,
@@ -46,13 +46,13 @@ const editAdController = async (req, res) => {
 const deleteAdController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adId,
     } = req.body;
 
     const result = await deleteAd({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adId,
     });

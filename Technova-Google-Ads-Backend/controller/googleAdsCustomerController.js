@@ -4,14 +4,14 @@ const {
 
 const getCustomerAccounts = async (req, res) => {
   try {
-    const nexionUserId = req.query.userId;
+    const connectionId = req.query.connectionId;
 
-    const accounts = await getAccessibleCustomerAccounts(nexionUserId);
+    const accounts = await getAccessibleCustomerAccounts(connectionId);
 
     res.json({
       success: true,
       message: "Google Ads customer accounts fetched successfully",
-      nexionUserId,
+      connectionId,
       accounts,
     });
   } catch (error) {

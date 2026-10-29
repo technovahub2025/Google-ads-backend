@@ -5,13 +5,13 @@ const {
 const createCampaignBudgetController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       budgetAmount,
     } = req.body;
 
     const result = await createCampaignBudget({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       budgetAmount,
     });

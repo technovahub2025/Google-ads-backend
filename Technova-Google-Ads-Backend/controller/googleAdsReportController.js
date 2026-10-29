@@ -5,14 +5,14 @@ const {
 const getCampaignReportController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       startDate,
       endDate,
     } = req.query;
 
     const result = await getCampaignReport({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       startDate,
       endDate,

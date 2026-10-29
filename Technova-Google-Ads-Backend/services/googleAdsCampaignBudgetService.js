@@ -5,12 +5,12 @@ const {
 } = require("../model/GoogleAdsConnection");
 
 const createCampaignBudget = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   budgetAmount,
   name = "Nexion Campaign Budget",
 }) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -63,7 +63,7 @@ const createCampaignBudget = async ({
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     budgetAmount,
     amountMicros,

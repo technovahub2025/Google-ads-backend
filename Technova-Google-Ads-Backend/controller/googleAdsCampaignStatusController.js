@@ -5,14 +5,14 @@ const {
 const updateCampaignStatusController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       campaignId,
       status,
     } = req.body;
 
     const result = await updateCampaignStatus({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       campaignId,
       status,

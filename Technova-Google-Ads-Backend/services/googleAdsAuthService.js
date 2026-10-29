@@ -6,8 +6,8 @@ const {
   getGoogleAdsConnection,
 } = require("../model/GoogleAdsConnection");
 
-const getAccessTokenForUser = async (nexionUserId) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+const getAccessTokenForConnection = async (connectionId) => {
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -31,5 +31,5 @@ const getAccessTokenForUser = async (nexionUserId) => {
 };
 
 module.exports = {
-  getAccessTokenForUser,
+  getAccessTokenForConnection,
 };

@@ -4,8 +4,8 @@ const {
   getGoogleAdsConnection,
 } = require("../model/GoogleAdsConnection");
 
-const getCampaigns = async (nexionUserId, customerId) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+const getCampaigns = async (connectionId, customerId) => {
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");

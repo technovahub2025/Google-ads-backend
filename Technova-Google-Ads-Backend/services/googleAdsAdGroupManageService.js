@@ -4,8 +4,8 @@ const {
   getGoogleAdsConnection,
 } = require("../model/GoogleAdsConnection");
 
-const getCustomer = async (nexionUserId, customerId) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+const getCustomer = async (connectionId, customerId) => {
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -34,7 +34,7 @@ const getCustomer = async (nexionUserId, customerId) => {
 
 // EDIT AD GROUP
 const editAdGroup = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   adGroupId,
   name,
@@ -47,11 +47,11 @@ const editAdGroup = async ({
     throw new Error("Ad group name is required");
   }
 
-  await getCustomer(nexionUserId, customerId);
+  await getCustomer(connectionId, customerId);
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     adGroupId,
     name,
@@ -62,7 +62,7 @@ const editAdGroup = async ({
 
 // DELETE AD GROUP
 const deleteAdGroup = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   adGroupId,
 }) => {
@@ -70,11 +70,11 @@ const deleteAdGroup = async ({
     throw new Error("Ad group ID is required");
   }
 
-  await getCustomer(nexionUserId, customerId);
+  await getCustomer(connectionId, customerId);
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     adGroupId,
     message: "Ad group delete request validated",

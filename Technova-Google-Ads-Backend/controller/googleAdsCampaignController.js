@@ -4,18 +4,18 @@ const {
 
 const getCampaignList = async (req, res) => {
   try {
-    const nexionUserId = req.query.userId;
+    const connectionId = req.query.connectionId;
     const customerId = req.query.customerId;
 
     const campaigns = await getCampaigns(
-      nexionUserId,
+      connectionId,
       customerId
     );
 
     res.json({
       success: true,
       message: "Google Ads campaigns fetched successfully",
-      nexionUserId,
+      connectionId,
       customerId,
       campaigns,
     });

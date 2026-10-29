@@ -5,7 +5,7 @@ const {
 const createCampaignController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       name,
       budgetAmount,
@@ -13,7 +13,7 @@ const createCampaignController = async (req, res) => {
     } = req.body;
 
     const result = await createCampaign({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       name,
       budgetAmount,

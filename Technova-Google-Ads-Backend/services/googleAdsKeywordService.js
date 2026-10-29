@@ -5,13 +5,13 @@ const {
 } = require("../model/GoogleAdsConnection");
 
 const createKeyword = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   adGroupId,
   keyword,
   matchType = "BROAD",
 }) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -58,7 +58,7 @@ const createKeyword = async ({
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     adGroupId,
     keyword,

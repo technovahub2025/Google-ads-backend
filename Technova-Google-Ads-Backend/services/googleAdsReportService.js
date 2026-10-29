@@ -5,12 +5,12 @@ const {
 } = require("../model/GoogleAdsConnection");
 
 const getCampaignReport = async ({
-  nexionUserId,
+  connectionId,
   customerId,
   startDate,
   endDate,
 }) => {
-  const connection = await getGoogleAdsConnection(nexionUserId);
+  const connection = await getGoogleAdsConnection(connectionId);
 
   if (!connection) {
     throw new Error("Google Ads connection not found");
@@ -45,7 +45,7 @@ const getCampaignReport = async ({
 
   return {
     success: true,
-    nexionUserId,
+    connectionId,
     customerId,
     startDate,
     endDate,

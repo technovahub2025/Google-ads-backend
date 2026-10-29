@@ -8,14 +8,14 @@ const {
 const editAdGroupController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adGroupId,
       name,
     } = req.body;
 
     const result = await editAdGroup({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adGroupId,
       name,
@@ -42,13 +42,13 @@ const editAdGroupController = async (req, res) => {
 const deleteAdGroupController = async (req, res) => {
   try {
     const {
-      userId,
+      connectionId,
       customerId,
       adGroupId,
     } = req.body;
 
     const result = await deleteAdGroup({
-      nexionUserId: userId,
+      connectionId: connectionId,
       customerId,
       adGroupId,
     });
