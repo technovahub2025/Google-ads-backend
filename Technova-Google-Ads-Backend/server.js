@@ -21,12 +21,14 @@ const googleAdsCampaignBudgetManageRoutes = require("./route/googleAdsCampaignBu
 const googleAdsAdGroupManageRoutes = require("./route/googleAdsAdGroupManageRoutes");
 const googleAdsKeywordManageRoutes = require("./route/googleAdsKeywordManageRoutes");
 const googleAdsAdManageRoutes = require("./route/googleAdsAdManageRoutes");
+const { authenticateNexion, authorizeGoogleAdsAccount } = require("./middleware/nexionAuth");
 
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/google-ads", authenticateNexion, authorizeGoogleAdsAccount);
 
 
 app.get("/", (req, res) => {

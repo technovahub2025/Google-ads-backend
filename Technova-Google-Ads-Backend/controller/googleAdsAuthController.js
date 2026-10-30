@@ -3,7 +3,7 @@ const {
   googleOAuthClient,
   GOOGLE_ADS_SCOPE,
 } = require("../config/googleOAuth");
-const { saveGoogleAdsConnection } = require("../model/GoogleAdsConnection");
+const { saveGoogleAdsConnection, saveOAuthState, consumeOAuthState } = require("../model/GoogleAdsConnection");
 
 const OAUTH_STATE_MAX_AGE_MS = 10 * 60 * 1000;
 
@@ -40,15 +40,21 @@ const isValidOAuthState = (state) => {
     crypto.timingSafeEqual(providedBuffer, expectedBuffer);
 };
 
-const getGoogleAdsAuthUrl = (req, res) => {
-  const authUrl = googleOAuthClient.generateAuthUrl({
-    access_type: "offline",
-    scope: [GOOGLE_ADS_SCOPE],
-    prompt: "select_account consent",
-    state: createOAuthState(),
-  });
-
-  res.json({ success: true, authUrl });
+const getGoogleAdsAuthUrl = async (req, res) => {
+  if (req.user.role !== "superadmin") return res.status(403).json({ success: false, message: "Super Admin permission required to connect a Manager Account" });
+  try {
+    const state = createOAuthState();
+    await saveOAuthState(state, req.user, new Date(Date.now() + OAUTH_STATE_MAX_AGE_MS));
+    const authUrl = googleOAuthClient.generateAuthUrl({
+      access_type: "offline",
+      scope: [GOOGLE_ADS_SCOPE],
+      prompt: "select_account consent",
+      state,
+    });
+    return res.json({ success: true, authUrl });
+  } catch (_) {
+    return res.status(500).json({ success: false, message: "Failed to start Google Ads authorization" });
+  }
 };
 
 const googleAdsOAuthCallback = async (req, res) => {
@@ -76,6 +82,9 @@ const googleAdsOAuthCallback = async (req, res) => {
       });
     }
 
+    const identity = await consumeOAuthState(state);
+    if (!identity) return res.status(400).json({ success: false, message: "OAuth state is invalid or expired" });
+
     const { tokens } = await googleOAuthClient.getToken(code);
     if (!tokens?.refresh_token) {
       return res.status(400).json({
@@ -86,6 +95,8 @@ const googleAdsOAuthCallback = async (req, res) => {
 
     const connectionId = await saveGoogleAdsConnection({
       refreshToken: tokens.refresh_token,
+      nexionUserId: identity.nexionUserId,
+      companyId: identity.companyId,
     });
 
     return res.json({
@@ -95,10 +106,7 @@ const googleAdsOAuthCallback = async (req, res) => {
       connectionId,
     });
   } catch (callbackError) {
-    console.error(
-      "Google OAuth callback error:",
-      callbackError.response?.data || callbackError.message
-    );
+    console.error("Google OAuth callback failed");
 
     return res.status(500).json({
       success: false,
