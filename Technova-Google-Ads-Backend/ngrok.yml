@@ -1,0 +1,7 @@
+version: "2"
+
+tunnels:
+  google-ads-backend:
+    proto: http
+    addr: 8001
+    domain: guise-oblivion-bobsled.ngrok-free.dev

@@ -11,4 +11,6 @@ router.post(
   createCampaignBudgetController
 );
 
+const { handle } = require("../controller/googleAdsManagementController");
+router.get("/campaign-budgets", handle("list", "budgets"));
 module.exports = router;

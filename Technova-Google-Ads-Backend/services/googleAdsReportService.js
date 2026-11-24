@@ -35,7 +35,9 @@ const getCampaignReport = async ({
   const client = new GoogleAdsApi({
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    developer_token: process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
+    ...(String(process.env.GOOGLE_ADS_DEVELOPER_TOKEN || "").trim()
+      ? { developer_token: String(process.env.GOOGLE_ADS_DEVELOPER_TOKEN).trim() }
+      : {}),
   });
 
   const customer = client.Customer({
