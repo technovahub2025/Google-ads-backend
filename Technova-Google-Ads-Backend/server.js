@@ -33,23 +33,34 @@ const { redirectClientOAuthInvitation, completeClientOAuth } = require("./contro
 
 const app = express();
 
-const allowedOrigins = [
+const defaultAllowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://guise-oblivion-bobsled.ngrok-free.dev"
 ];
 
-app.use(cors({
+const environmentOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  ...new Set([...defaultAllowedOrigins, ...environmentOrigins])
+];
+
+const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"]
-}));
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "ngrok-skip-browser-warning"
+  ]
+};
 
-app.options(/.*/, cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 const parseJson = express.json();
 const parseCampaignJson = express.json({ limit: "36mb" });
 const isCampaignSubmission = (req) =>
