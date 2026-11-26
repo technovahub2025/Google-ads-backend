@@ -63,6 +63,25 @@ const getCustomerAccount = async ({ customerId, ...options }) => {
   return account;
 };
 
+const getBillingSetups = async ({ customerId, ...options }) => {
+  const result = await requestGoogleAdsApi({
+    endpoint: "/customers/:customerId/googleAds:search", method: "POST",
+    operation: "billing_setup_lookup", stage: "billing_setup_lookup",
+    operationKind: "read", retryPolicy: "safe", customerId, ...options,
+    body: { query: `
+      SELECT billing_setup.resource_name, billing_setup.id, billing_setup.status,
+        billing_setup.payments_account,
+        billing_setup.payments_account_info.payments_account_id,
+        billing_setup.payments_account_info.payments_account_name,
+        billing_setup.payments_account_info.payments_profile_id,
+        billing_setup.start_date_time, billing_setup.end_date_time,
+        billing_setup.end_time_type
+      FROM billing_setup
+    ` },
+  });
+  return decamelizeKeys(result.results || []).map((row) => row.billing_setup).filter(Boolean);
+};
+
 const getAccessibleCustomerAccounts = async (connectionId) => {
   const connection = await getGoogleAdsConnection(connectionId);
 
@@ -170,6 +189,7 @@ const getAccessibleCustomerAccountsForToken = async (refreshToken, { connectionI
 
 module.exports = {
   getCustomerAccount,
+  getBillingSetups,
   getAccessibleCustomerAccounts,
   getAccessibleCustomerAccountsForToken,
 };
