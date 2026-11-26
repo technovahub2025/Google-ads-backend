@@ -1,5 +1,6 @@
 const { getCustomerAccount, getBillingSetups } = require("./googleAdsCustomerService");
 const { resolvePaymentArrangement } = require("../utils/googleAdsPaymentArrangement");
+const { unavailableAvailableFunds } = require("../utils/googleAdsAvailableFunds");
 
 const reconnectRequired = (error) => error.diagnostic?.googleAdsErrorCode === "RECONNECT_REQUIRED";
 const arrangements = new Set(["prepaid", "monthly_invoicing", "automatic_payments"]);
@@ -34,11 +35,14 @@ async function getGoogleAdsBilling({ connectionId, customerId, managerCustomerId
   const billingSetups = await getBillingSetups({ connectionId, customerId, managerCustomerId });
   const resolved = resolvePaymentArrangement({ billingSetups, verifiedArrangement: verifiedPaymentArrangement(customerId) });
   const paymentArrangement = resolved.paymentArrangement;
+  const availableFunds = unavailableAvailableFunds(account.currency);
   return {
     account, connectionStatus: "connected", paymentArrangement,
     arrangement: paymentArrangement,
     paymentArrangementSource: resolved.source,
-    ...(resolved.billingSetup ? { billingSetup: resolved.billingSetup } : {}),
+    billingSetups: resolved.billingSetups,
+    selectedBillingSetup: resolved.billingSetup,
+    availableFunds,
     ...(paymentArrangement === "unknown" ? { billingDetailsUnavailable: true } : {}),
   };
 }
